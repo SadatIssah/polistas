@@ -142,7 +142,7 @@ class ShopCart{
             $query = "INSERT INTO shop_orders(userID, productID, product_name, qty, price, img)
                 VALUES ('$customer_Id','$productId','$productName','$quantity','$price','$image')";
 
-            $inserted_row = $this->db->insert($query);
+             $this->db->insert($query);
         }
     }
 
@@ -198,7 +198,7 @@ class ShopCart{
 
 
 
-    public function processPayment($customer_Id,$total_amount, $vendor){
+    public function processPayment($customer_Id,$total_amount,  $cus_email){
 
         $query = "SELECT * FROM shop_users WHERE userID ='$customer_Id' ";
         $getProduct = $this->db->select($query);
@@ -208,66 +208,125 @@ class ShopCart{
              }
 
         //API URL
-        $url = "https://pay.npontu.com/api/pay";
+            $curl = curl_init();
 
-        //create a new cURL resource
-        $ch = curl_init();
+            $customer_email =  $cus_email;
+            $amount = $total_amount;
+            $currency = "GHS";
+            $txref = time().rand(10*45, 100*98); // ensure you generate unique references per transaction.
+            $PBFPubKey = "FLWPUBK_TEST-d784e91a8ddc8fdb4f3381a2e576e2a3-X"; // get your public key from the dashboard.
+            $redirect_url = "https://localhost/polistas/shop/pages/verifyonlinepayment.php";
 
-        //randomly generated transactionID
-        $transaID = rand(8, 12);
 
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.ravepay.co/flwv3-pug/getpaidx/api/v2/hosted/pay",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode([
+                'amount'=>$amount,
+                'customer_email'=>$customer_email,
+                'currency'=>$currency,
+                'txref'=>$txref,
+                'PBFPubKey'=>$PBFPubKey,
+                'redirect_url'=>$redirect_url,
 
-        //setup request to send json via POST
-        if($vendor == 'Vodafone'){
-        $data = array(
-            'number' => $number,
-            'vendor' => $vendor,
-            'uid'    => 'polista',
-            'pass'   => 'polistapass',
-            'tp'     => $transaID,
-            'cbk'    => '154.160.23.145',
-            'amt'    => $total_amount,
-            'msg'    => 'Payment to Polista for purchase made',
-            'vou'   =>'422572322',
-            'trans_type'=>'debit'
+            ]),
+            CURLOPT_HTTPHEADER => [
+                "content-type: application/json",
+                "cache-control: no-cache"
+            ],
+            ));
 
-        );}
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
 
-        else{
-            $data = array(
-                'number' => $number,
-                'vendor' => $vendor,
-                'uid'    => 'polista',
-                'pass'   => 'polistapass',
-                'tp'     => $transaID,
-                'cbk'    => '',
-                'amt'    => $total_amount,
-                'msg'    => 'Payment to Polista for purchase made',
-                'trans_type'=>'debit'
-            );
-        }
+            if($err){
+            // there was an error contacting the rave API
+            die('Curl returned error: ' . $err);
+            }
 
-        $payload = json_encode($data);
-        curl_setopt($ch, CURLOPT_URL,$url);
+            $transaction = json_decode($response);
 
-        //attach encoded JSON string to the POST fields
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            if(!$transaction->data && !$transaction->data->link){
+            // there was an error from the API
+            print_r('API returned error: ' . $transaction->message);
+            }
 
-        //set the content type to application/json
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+            // uncomment out this line if you want to redirect the user to the payment page
+            //print_r($transaction->data->message);
+            // redirect to page so User can pay
+            // uncomment this line to allow the user redirect to the payment page
+            header('Location: ' . $transaction->data->link);
 
-        //return response instead of outputting
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        //execute the POST request
-        $result = curl_exec($ch);
-        //return $result;
-        //close cURL resource
-        curl_close($ch);
     }
 
 
 
 
+
+
+
+
+
 }
+
+
+
+// $url = "https://pay.npontu.com/api/pay";
+
+// //create a new cURL resource
+// $ch = curl_init();
+
+// //randomly generated transactionID
+// $transaID = rand(8, 12);
+
+
+// //setup request to send json via POST
+// if($vendor == 'Vodafone'){
+// $data = array(
+//     'number' => $number,
+//     'vendor' => $vendor,
+//     'uid'    => 'polista',
+//     'pass'   => 'polistapass',
+//     'tp'     => $transaID,
+//     'cbk'    => '154.160.23.145',
+//     'amt'    => $total_amount,
+//     'msg'    => 'Payment to Polista for purchase made',
+//     'vou'   =>'422572322',
+//     'trans_type'=>'debit'
+
+// );}
+
+// else{
+//     $data = array(
+//         'number' => $number,
+//         'vendor' => $vendor,
+//         'uid'    => 'polista',
+//         'pass'   => 'polistapass',
+//         'tp'     => $transaID,
+//         'cbk'    => '',
+//         'amt'    => $total_amount,
+//         'msg'    => 'Payment to Polista for purchase made',
+//         'trans_type'=>'debit'
+//     );
+// }
+
+// $payload = json_encode($data);
+// curl_setopt($ch, CURLOPT_URL,$url);
+
+// //attach encoded JSON string to the POST fields
+// curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+// //set the content type to application/json
+// curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+
+// //return response instead of outputting
+// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+// //execute the POST request
+// $result = curl_exec($ch);
+// //return $result;
+// //close cURL resource
+// curl_close($ch);
 ?>
+

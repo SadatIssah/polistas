@@ -9,48 +9,17 @@
 
   ?>
 
-  <?php
-  //if (isset($_GET['order_id']) && $_GET['order_id'] == 'mtn' ) {
-
-   $customer_Id =  Session::get("userId");
-
-   $total_amount = Session::get("sum");
-   //$vendor = $_GET['order_id'];
-   $transaID = rand(8, 12);
-  // $process_payment = $cart->processPayment($customer_Id, $total_amount,$vendor);
-
-   //$ordeAdded = $cart->add_order($customer_Id);
-   //$delcartData = $cart->deleteCustomerCartDetails();
-     //header("Location:onlinesuccess.php");
-   //}
-
- ?>
-
 <?php
-  if (isset($_GET['order_id']) && $_GET['order_id'] == 'Vodafone' ) {
+ if (isset($_GET['orderid']) && $_GET['orderid'] == 'order' ) {
 
-   $customer_Id =  Session::get("userId");
-   $total_amount = Session::get("sum");
-   $vendor = $_GET['order_id'];
-   $process_payment = $cart->processPayment($customer_Id, $total_amount,$vendor);
+  $customer_Id =  Session::get("userId");
+  $cus_email =  Session::get("cus_email");
+  $total_amount = Session::get("sum");
+  $process_payment = $cart->processPayment($customer_Id, $total_amount, $cus_email);
 
-    // header("Location:onlinesuccess.php");
-   }
-
+  }
  ?>
 
-<?php
-  if (isset($_GET['order_id']) && $_GET['order_id'] == 'airtelTigo' ) {
-
-   $customer_Id =  Session::get("userId");
-   $total_amount = Session::get("sum");
-   $vendor = $_GET['order_id'];
-   $process_payment = $cart->processPayment($customer_Id, $total_amount,$vendor);
-
-     //header("Location:onlinesuccess.php");
-   }
-
- ?>
 
 
 
@@ -202,16 +171,16 @@
 
     </div>
 
-
+    <div class="ordernow"> <a href="?orderid=order"> Order </a></div>
     <?php
-$total_amount = Session::get("sum");
-//$vendor = $_GET['order_id'];
-$transaID = rand(12,20);
+// $total_amount = Session::get("sum");
+// //$vendor = $_GET['order_id'];
+// $transaID = rand(12,20);
 
 
-echo"<a href='#' onclick='mtn($transaID, $total_amount, $number)'><img src='../images/mtn.jpg' style='width: 100px; height:80px'></a>
-|<a href='#' onclick='tigo($transaID, $total_amount, $number)'><img src='../images/tigo.jpg' style='width: 100px; height:80px'></a>
-|<a href='#' onclick='vodafone($transaID, $total_amount, $number)'><img src='../images/voda.jpg' style='width: 100px; height:80px'></a>";
+// echo"<a href='#' onclick='mtn($transaID, $total_amount, $number)'><img src='../images/mtn.jpg' style='width: 100px; height:80px'></a>
+// |<a href='#' onclick='tigo($transaID, $total_amount, $number)'><img src='../images/tigo.jpg' style='width: 100px; height:80px'></a>
+// |<a href='#' onclick='vodafone($transaID, $total_amount, $number)'><img src='../images/voda.jpg' style='width: 100px; height:80px'></a>";
 
 ?>
 
@@ -222,9 +191,8 @@ echo"<a href='#' onclick='mtn($transaID, $total_amount, $number)'><img src='../i
 
 
 
-
-
-
-
-
 <?php include '../inc/footer.php'; ?>
+
+
+
+

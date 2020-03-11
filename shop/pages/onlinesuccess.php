@@ -18,7 +18,7 @@
     <div class="content">
       <div class="section group">
       <div class="payment">
-      <h2>Success   </h2>
+      <h2>Succes  </h2>
       <p> Payment Successful  </p>
       <p> Thanks for Purchase. Receive your order Successfully. We will contact you ASAP with delivery details. Here is your order details :<a href="order.php"> Visit Here </a> </p>
 

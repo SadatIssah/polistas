@@ -72,6 +72,7 @@ class Customers{
          $value = $result->fetch_assoc();
          Session::set("userlogin", true);
          Session::set("userId", $value['userID']);
+         Session::set("cus_email", $value['email']);
          Session::set("userName", $value['Fname']);
          header("Location:payment.php");
          }else {
